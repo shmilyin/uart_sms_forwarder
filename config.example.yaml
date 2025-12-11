@@ -7,7 +7,7 @@ database:
 log:
   level: debug # 日志等级  debug,info,waring,error
   filename: ./logs/sms.log
-e
+
 server:
   addr: "0.0.0.0:8080"
   ip_extractor: "X-Real-IP"

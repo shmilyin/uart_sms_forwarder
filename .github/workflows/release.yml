@@ -55,7 +55,7 @@ jobs:
       - name: 准备发布包
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          RELEASE_DIR="uart_sms_forwarder-${VERSION}-linux-amd64"
+          RELEASE_DIR="uart_sms_forwarder-linux-amd64"
 
           # 创建发布目录
           mkdir -p ${RELEASE_DIR}
