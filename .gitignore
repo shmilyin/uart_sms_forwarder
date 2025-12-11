@@ -1,0 +1,11 @@
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+data
+bin
+app.db
+config.yaml
+logs

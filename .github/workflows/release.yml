@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送 v 开头的 tag 时触发，例如 v1.0.0
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整的 git 历史，用于版本号
+
+      - name: 设置 Go 环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'  # 根据你的项目需求调整 Go 版本
+
+      - name: 设置 Node.js 环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'  # 根据你的项目需求调整 Node 版本
+
+      - name: 安装 Yarn
+        run: npm install -g yarn
+
+      - name: 构建前端
+        run: |
+          cd web
+          yarn install
+          yarn build
+          cd ..
+
+      - name: 安装 UPX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y upx
+
+      - name: 构建服务端二进制
+        run: |
+          mkdir -p bin
+          VERSION=${GITHUB_REF#refs/tags/}
+          LDFLAGS="-s -w -X main.Version=${VERSION}"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LDFLAGS}" -o bin/uart_sms_forwarder-linux-amd64 cmd/serv/main.go
+          upx bin/uart_sms_forwarder-linux-amd64
+          ls -lh bin/
+
+      - name: 准备发布包
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          RELEASE_DIR="uart_sms_forwarder-${VERSION}-linux-amd64"
+
+          # 创建发布目录
+          mkdir -p ${RELEASE_DIR}
+
+          # 复制二进制文件
+          cp bin/uart_sms_forwarder-linux-amd64 ${RELEASE_DIR}/uart_sms_forwarder
+
+          # 复制配置文件示例并重命名为 config.yaml
+          cp config.example.yaml ${RELEASE_DIR}/config.yaml
+
+          # 打包为 tar.gz
+          tar -czf ${RELEASE_DIR}.tar.gz ${RELEASE_DIR}
+
+          # 显示打包结果
+          ls -lh ${RELEASE_DIR}.tar.gz
+
+      - name: 创建 Release 并上传文件
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            uart_sms_forwarder-*.tar.gz
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
