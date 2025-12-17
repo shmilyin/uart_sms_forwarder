@@ -81,10 +81,7 @@ export default function Layout() {
                         <div className="flex items-center space-x-4 lg:space-x-8">
                             {/* Logo */}
                             <div className="flex items-center space-x-2 lg:space-x-3 flex-shrink-0">
-                                <div
-                                    className="w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/30 transform transition-transform hover:scale-105">
-                                    <Smartphone className="w-5 h-5"/>
-                                </div>
+                                <img src={'/logo.png'} alt="UART 短信转发器" className="w-6 h-6"/>
                                 <div className="hidden sm:flex flex-col">
                                     <h1 className="text-base lg:text-lg font-bold leading-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                                         UART 短信转发器

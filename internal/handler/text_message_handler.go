@@ -121,3 +121,37 @@ func (h *TextMessageHandler) GetConversationMessages(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, messages)
 }
+
+// DeleteConversation 删除整个会话（与某个联系人的所有消息）
+// DELETE /api/messages/conversations/:peer
+func (h *TextMessageHandler) DeleteConversation(c echo.Context) error {
+	peer := c.Param("peer")
+	if peer == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "peer 参数不能为空",
+		})
+	}
+
+	// 手动 URL 解码以处理特殊字符（如 + 号）
+	decodedPeer, err := url.QueryUnescape(peer)
+	if err != nil {
+		h.logger.Error("URL 解码失败", zap.Error(err), zap.String("peer", peer))
+		// 如果解码失败，使用原始值
+		decodedPeer = peer
+	}
+
+	h.logger.Debug("删除会话",
+		zap.String("peer_raw", peer),
+		zap.String("peer_decoded", decodedPeer))
+
+	if err := h.service.DeleteConversation(c.Request().Context(), decodedPeer); err != nil {
+		h.logger.Error("删除会话失败", zap.Error(err), zap.String("peer", decodedPeer))
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "删除会话失败",
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "删除成功",
+	})
+}

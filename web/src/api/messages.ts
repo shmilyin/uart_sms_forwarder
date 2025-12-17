@@ -21,6 +21,11 @@ export const deleteMessage = (id: string) => {
     return apiClient.delete(`/messages/${id}`);
 };
 
+// 删除整个会话（与某个联系人的所有消息）
+export const deleteConversation = (peer: string) => {
+    return apiClient.delete(`/messages/conversations/${encodeURIComponent(peer)}`);
+};
+
 // 清空所有短信
 export const clearMessages = () => {
     return apiClient.delete('/messages');

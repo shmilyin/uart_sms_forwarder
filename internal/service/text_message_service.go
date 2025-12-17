@@ -204,3 +204,22 @@ func (s *TextMessageService) GetConversationMessages(ctx context.Context, peer s
 
 	return messages, nil
 }
+
+// DeleteConversation 删除整个会话（与某个联系人的所有消息）
+func (s *TextMessageService) DeleteConversation(ctx context.Context, peer string) error {
+	db := s.repo.GetDB(ctx)
+
+	// 删除条件：(type=incoming AND from=peer) OR (type=outgoing AND to=peer)
+	result := db.Where("(type = ? AND \"from\" = ?) OR (type = ? AND \"to\" = ?)",
+		models.MessageTypeIncoming, peer,
+		models.MessageTypeOutgoing, peer,
+	).Delete(&models.TextMessage{})
+
+	if result.Error != nil {
+		s.logger.Error("删除会话失败", zap.Error(result.Error), zap.String("peer", peer))
+		return fmt.Errorf("删除会话失败: %w", result.Error)
+	}
+
+	s.logger.Info("删除会话成功", zap.String("peer", peer), zap.Int64("deleted_count", result.RowsAffected))
+	return nil
+}

@@ -191,6 +191,7 @@ func setupApi(app *orz.App, handlers *Handlers, appConfig *config.AppConfig, log
 	api.GET("/messages/stats", handlers.TextMessage.GetStats)
 	api.GET("/messages/conversations", handlers.TextMessage.GetConversations)
 	api.GET("/messages/conversations/:peer/messages", handlers.TextMessage.GetConversationMessages)
+	api.DELETE("/messages/conversations/:peer", handlers.TextMessage.DeleteConversation)
 	api.DELETE("/messages/:id", handlers.TextMessage.Delete)
 	api.DELETE("/messages", handlers.TextMessage.Clear)
 

@@ -1,10 +1,16 @@
 import {useEffect, useRef, useState} from 'react';
-import {MoreVertical, RefreshCw, Search, Send, Trash2, User} from 'lucide-react';
+import {MoreVertical, RefreshCw, Search, Send, Trash2, User, X} from 'lucide-react';
 import {toast} from 'sonner';
-import {clearMessages, getConversations, getConversationMessages} from '../api/messages';
+import {clearMessages, getConversations, getConversationMessages, deleteConversation, deleteMessage} from '../api/messages';
 import {sendSMS} from '../api/serial';
 import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import type {Conversation, TextMessage} from '@/api/types';
 
@@ -85,6 +91,37 @@ export default function Messages() {
         },
     });
 
+    // 删除整个会话
+    const deleteConversationMutation = useMutation({
+        mutationFn: (peer: string) => deleteConversation(peer),
+        onSuccess: (_, peer) => {
+            toast.success('会话已删除');
+            // 如果删除的是当前选中的会话，清除选中状态
+            if (selectedPeer === peer) {
+                setSelectedPeer(null);
+            }
+            queryClient.invalidateQueries({queryKey: ['conversations']});
+        },
+        onError: (error) => {
+            console.error('删除失败:', error);
+            toast.error('删除会话失败');
+        },
+    });
+
+    // 删除单条消息
+    const deleteMessageMutation = useMutation({
+        mutationFn: (messageId: string) => deleteMessage(messageId),
+        onSuccess: () => {
+            toast.success('消息已删除');
+            queryClient.invalidateQueries({queryKey: ['conversations']});
+            queryClient.invalidateQueries({queryKey: ['conversation-messages']});
+        },
+        onError: (error) => {
+            console.error('删除失败:', error);
+            toast.error('删除消息失败');
+        },
+    });
+
     // 自动选择第一个会话
     useEffect(() => {
         if (!selectedPeer && conversations.length > 0) {
@@ -118,6 +155,18 @@ export default function Messages() {
     const handleClear = () => {
         if (!confirm('确定要清空所有短信吗？此操作不可恢复！')) return;
         clearMutation.mutate();
+    };
+
+    const handleDeleteConversation = () => {
+        if (!selectedPeer) return;
+        if (!confirm(`确定要删除与 ${selectedPeer} 的所有消息吗？此操作不可恢复！`)) return;
+        deleteConversationMutation.mutate(selectedPeer);
+    };
+
+    const handleDeleteMessage = (messageId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!confirm('确定要删除这条消息吗？此操作不可恢复！')) return;
+        deleteMessageMutation.mutate(messageId);
     };
 
     const formatTime = (timestamp: number) => {
@@ -287,13 +336,26 @@ export default function Messages() {
                                         </span>
                                     </div>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-gray-400 hover:text-gray-600"
-                                >
-                                    <MoreVertical className="w-4 h-4"/>
-                                </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-gray-400 hover:text-gray-600"
+                                        >
+                                            <MoreVertical className="w-4 h-4"/>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem
+                                            onClick={handleDeleteConversation}
+                                            className="text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer"
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-2"/>
+                                            删除会话
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </>
                         ) : (
                             <div className="text-gray-400 text-sm">请选择会话</div>
@@ -307,18 +369,26 @@ export default function Messages() {
                                 {currentMessages.map((msg) => (
                                     <div
                                         key={msg.id}
-                                        className={`flex ${msg.type === 'outgoing' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-200`}
+                                        className={`flex ${msg.type === 'outgoing' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-200 group`}
                                     >
                                         <div
-                                            className={`max-w-[70%] ${msg.type === 'outgoing' ? 'items-end' : 'items-start'} flex flex-col`}>
+                                            className={`max-w-[70%] ${msg.type === 'outgoing' ? 'items-end' : 'items-start'} flex flex-col relative`}>
                                             <div
-                                                className={`rounded-2xl px-4 py-2.5 shadow-sm text-sm leading-relaxed ${
+                                                className={`rounded-2xl px-4 py-2.5 shadow-sm text-sm leading-relaxed relative ${
                                                     msg.type === 'outgoing'
                                                         ? 'bg-blue-600 text-white rounded-tr-sm'
                                                         : 'bg-white text-gray-800 border border-gray-100 rounded-tl-sm'
                                                 }`}
                                             >
                                                 <p className="break-words">{msg.content}</p>
+                                                {/* 删除按钮 - 悬停时显示 */}
+                                                <button
+                                                    onClick={(e) => handleDeleteMessage(msg.id, e)}
+                                                    className={`absolute -top-2 ${msg.type === 'outgoing' ? '-left-2' : '-right-2'} opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-red-500 hover:bg-red-600 rounded-full text-white shadow-md`}
+                                                    title="删除消息"
+                                                >
+                                                    <X className="w-3 h-3"/>
+                                                </button>
                                             </div>
                                             <div className={`flex items-center space-x-2 mt-1 px-1 ${
                                                 msg.type === 'outgoing' ? 'flex-row-reverse space-x-reverse' : ''
