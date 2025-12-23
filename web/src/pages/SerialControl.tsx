@@ -260,6 +260,12 @@ export default function SerialControl() {
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center pb-2 border-b">
+                                        <span className="text-xs text-gray-500">开机时长</span>
+                                        <span className="text-sm font-medium">
+                                            {mobile.uptime}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center pb-2 border-b">
                                         <span className="text-xs text-gray-500">内存使用</span>
                                         <span className="text-sm font-medium">{deviceStatus.mem_kb.toFixed(2)} KB</span>
                                     </div>

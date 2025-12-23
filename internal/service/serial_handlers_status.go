@@ -24,6 +24,7 @@ type StatusData struct {
 		Imsi         string  `json:"imsi"`     // SIM 卡 IMSI
 		Number       string  `json:"number"`   // 手机号
 		Operator     string  `json:"operator"` // 运营商名称
+		Uptime       string  `json:"uptime"`   //
 	} `json:"mobile"`
 	Timestamp int    `json:"timestamp"`
 	MemKb     int    `json:"mem_kb"`
