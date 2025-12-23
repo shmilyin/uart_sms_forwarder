@@ -127,11 +127,14 @@ export default function SerialControl() {
                                 <div className="flex justify-between items-center pb-2 border-b">
                                     <span className="text-xs text-gray-500">网络注册</span>
                                     <span className="text-sm font-medium">
-                    {mobile.is_registered ? (
-                        <span className="text-green-600">已注册</span>
-                    ) : (
-                        <span className="text-red-600">未注册</span>
-                    )}
+                                        {!mobile.is_registered ? (
+                                            <span className="text-red-600">未注册</span>
+                                        ) : mobile.is_roaming ? (
+                                            <span className="text-yellow-600">已注册（漫游）</span>
+                                        ) : (
+                                            <span className="text-green-600">已注册</span>
+                                        )}
+
                   </span>
                                 </div>
                                 <div className="pt-1">

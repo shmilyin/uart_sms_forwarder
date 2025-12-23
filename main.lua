@@ -67,6 +67,7 @@ function get_mobile_info()
     end
 
     info.is_registered = (net_stat == 1 or net_stat == 5)
+    info.is_roaming = net_stat == 5
     return info
 end
 
