@@ -45,6 +45,15 @@ interface FormValues {
     emailFrom: string;
     emailTo: string;
     emailSubject: string;
+
+    //telegram
+    telegramlEnabled: boolean;
+    telegramApiToken: string;
+    telegramUserid: string;
+    telegramProxyEnabled: boolean
+    telegramProxyUrl: string
+    telegramProxyUsername: string
+    telegramProxyPassword: string
 }
 
 export default function NotificationChannels() {
@@ -71,6 +80,13 @@ export default function NotificationChannels() {
         emailFrom: '',
         emailTo: '',
         emailSubject: '收到新短信 - {{from}}',
+        telegramlEnabled: false,
+        telegramApiToken: '',
+        telegramUserid: '',
+        telegramProxyEnabled: false,
+        telegramProxyUrl: '',
+        telegramProxyUsername: '',
+        telegramProxyPassword: '',
     });
 
     // 获取通知渠道列表
@@ -139,6 +155,14 @@ export default function NotificationChannels() {
                     newFormValues.emailFrom = (channel.config?.from as string) || '';
                     newFormValues.emailTo = (channel.config?.to as string) || '';
                     newFormValues.emailSubject = (channel.config?.subject as string) || '收到新短信 - {{from}}';
+                } else if (channel.type === 'telegram') {
+                    newFormValues.telegramlEnabled = channel.enabled;
+                    newFormValues.telegramApiToken = (channel.config?.apiToken as string) || '';
+                    newFormValues.telegramUserid = (channel.config?.userid as string) || '';
+                    newFormValues.telegramProxyEnabled = (channel.config?.proxyEnabled as boolean)||false;
+                    newFormValues.telegramProxyUrl = (channel.config?.proxyUrl as string) || '';
+                    newFormValues.telegramProxyUsername = (channel.config?.proxyUsername as string) || '';
+                    newFormValues.telegramProxyPassword = (channel.config?.proxyPassword as string) || '';
                 }
             });
 
@@ -229,6 +253,26 @@ export default function NotificationChannels() {
                     subject: formValues.emailSubject,
                 },
             });
+        }
+
+        if (formValues.telegramlEnabled||formValues.telegramApiToken) {
+            if (formValues.telegramProxyEnabled && !formValues.telegramProxyUrl) {
+                toast.error('已启用 HTTP 代理，但未填写代理地址')
+                return
+            }
+
+            newChannels.push({
+                type:'telegram',
+                enabled:formValues.telegramlEnabled,
+                config: {
+                    apiToken: formValues.telegramApiToken,
+                    userid: formValues.telegramUserid,
+                    proxyEnabled: formValues.telegramProxyEnabled,
+                    proxyUrl: formValues.telegramProxyUrl,
+                    proxyUsername: formValues.telegramProxyUsername,
+                    proxyPassword: formValues.telegramProxyPassword,
+                }
+            })
         }
 
         saveMutation.mutate(newChannels);
@@ -838,6 +882,162 @@ export default function NotificationChannels() {
                                         提示：QQ 邮箱和 163 邮箱等需要在邮箱设置中开启 SMTP 服务并使用授权码
                                     </p>
                                 </div>
+                            </div>
+                        </CardContent>
+                    )}
+                </Card>
+                {/* telegram通知 */}
+                <Card
+                    className={`border transition-all ${formValues.telegramlEnabled ? 'border-blue-200 bg-gradient-to-br from-white to-blue-50/20' : 'border-gray-200 opacity-95'}`}>
+                    <CardHeader className="border-b border-gray-100 bg-white/50">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3 flex-1">
+                                <div
+                                    className={`w-12 h-12 rounded-lg flex items-center justify-center ${formValues.telegramlEnabled ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                                    <Bell size={24}/>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center space-x-2">
+                                        <CardTitle className="text-lg font-bold text-gray-800">telegram通知</CardTitle>
+                                        <div
+                                            className={`w-2 h-2 rounded-full ${formValues.telegramlEnabled ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                                        <span
+                                            className="text-xs text-gray-500">{formValues.telegramlEnabled ? '已启用' : '未启用'}</span>
+                                        <div
+                                            className={`w-2 h-2 rounded-full ${formValues.telegramProxyEnabled ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                                        <span
+                                            className="text-xs text-gray-500">{formValues.telegramProxyEnabled ? '代理开' : '代理关'}</span>
+                                    </div>
+                                    <CardDescription className="mt-1.5 text-xs">
+                                        了解更多：
+                                        <a
+                                            href="https://core.telegram.org/bots/api"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 hover:text-blue-700 hover:underline ml-1 transition-colors font-medium"
+                                        >
+                                            telegram自定义机器人接入文档
+                                        </a>
+                                    </CardDescription>
+                                </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                                {formValues.telegramlEnabled && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        disabled={testMutation.isPending}
+                                        onClick={() => testMutation.mutate('telegram')}
+                                        className="text-xs bg-gray-100 hover:bg-gray-200 transition-colors border-none cursor-pointer"
+                                    >
+                                        <TestTube className="w-3.5 h-3.5 mr-1.5"/>
+                                        {testMutation.isPending ? '测试中...' : '发送测试'}
+                                    </Button>
+                                )}
+                                {formValues.telegramlEnabled && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                            updateField('telegramProxyEnabled', !formValues.telegramProxyEnabled)
+                                        }
+                                        className={`text-xs border-none transition-colors ${
+                                            formValues.telegramProxyEnabled
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'bg-gray-100 text-gray-600'
+                                        }`}
+                                    >
+                                        🌐 HTTP代理
+                                    </Button>
+                                )}
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={formValues.telegramlEnabled}
+                                        onChange={(e) => updateField('telegramlEnabled', e.target.checked)}
+                                    />
+                                    <div
+                                        className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    {formValues.telegramProxyEnabled && (
+                        <div className="space-y-3 rounded-lg border border-blue-100 bg-blue-50/40 p-3 animate-in fade-in duration-200">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wide">
+                                    HTTP代理地址
+                                </label>
+                                <Input
+                                    value={formValues.telegramProxyUrl}
+                                    onChange={(e) => updateField('telegramProxyUrl', e.target.value)}
+                                    placeholder="http://127.0.0.1:7890"
+                                    className="font-mono text-sm"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">
+                                        用户名（可选）
+                                    </label>
+                                    <Input
+                                        value={formValues.telegramProxyUsername}
+                                        onChange={(e) =>
+                                            updateField('telegramProxyUsername', e.target.value)
+                                        }
+                                        className="font-mono text-sm"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs text-gray-500 mb-1">
+                                        密码（可选）
+                                    </label>
+                                    <Input
+                                        type="password"
+                                        value={formValues.telegramProxyPassword}
+                                        onChange={(e) =>
+                                            updateField('telegramProxyPassword', e.target.value)
+                                        }
+                                        className="font-mono text-sm"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {formValues.telegramlEnabled && (
+                        <CardContent className="space-y-4 animate-in slide-in-from-top-2 duration-200">
+                            <div>
+                                <label
+                                    className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                                    apiToken <span className="text-red-500">*</span>
+                                </label>
+                                <Input
+                                    value={formValues.telegramApiToken}
+                                    onChange={(e) => updateField('telegramApiToken', e.target.value)}
+                                    placeholder="apioken"
+                                    className="bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono text-sm"
+                                />
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1.5">使用@botfather机器人获取</p>
+                            <div>
+                                <label
+                                    className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                                    用户id
+                                </label>
+                                <div className="relative">
+                                    <Input
+                                        value={formValues.telegramUserid}
+                                        onChange={(e) => updateField('telegramUserid', e.target.value)}
+                                        placeholder="userid"
+                                        className="bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono text-sm pr-10"
+                                    />
+                                    <Shield size={14}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-1.5">使用@userinfobot机器人获取</p>
                             </div>
                         </CardContent>
                     )}

@@ -142,6 +142,9 @@ func (h *PropertyHandler) TestNotificationChannel(c echo.Context) error {
 		})
 	case "email":
 		sendErr = h.notifier.SendEmailByConfig(ctx, targetChannel.Config, message)
+	case "telegram":
+		sendErr = h.notifier.SendTelegramByConfig(ctx, targetChannel.Config, message)
+
 	default:
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "不支持的通知渠道类型",
