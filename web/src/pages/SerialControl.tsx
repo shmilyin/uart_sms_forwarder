@@ -8,6 +8,7 @@ import {Textarea} from '@/components/ui/textarea';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import type {DeviceStatus} from '@/api/types';
+import {formatUptime} from "@/utils/utils.ts";
 
 export default function SerialControl() {
     const [to, setTo] = useState('');
@@ -274,7 +275,7 @@ export default function SerialControl() {
                                     <div className="flex justify-between items-center pb-2 border-b">
                                         <span className="text-xs text-gray-500">开机时长</span>
                                         <span className="text-sm font-medium">
-                                            {mobile.uptime}
+                                            {formatUptime(mobile.uptime/1000)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center pb-2 border-b">
