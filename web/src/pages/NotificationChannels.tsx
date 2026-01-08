@@ -304,7 +304,7 @@ export default function NotificationChannels() {
                 <Card
                     className={`border transition-all ${formValues.dingtalkEnabled ? 'border-blue-200 bg-gradient-to-br from-white to-blue-50/20' : 'border-gray-200 opacity-95'}`}>
                     <CardHeader className="border-b border-gray-100 bg-white/50">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0">
                             <div className="flex items-center space-x-3 flex-1">
                                 <div
                                     className={`w-12 h-12 rounded-lg flex items-center justify-center ${formValues.dingtalkEnabled ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
@@ -398,7 +398,7 @@ export default function NotificationChannels() {
                 <Card
                     className={`border transition-all ${formValues.wecomEnabled ? 'border-green-200 bg-gradient-to-br from-white to-green-50/20' : 'border-gray-200 opacity-95'}`}>
                     <CardHeader className="border-b border-gray-100 bg-white/50">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0">
                             <div className="flex items-center space-x-3 flex-1">
                                 <div
                                     className={`w-12 h-12 rounded-lg flex items-center justify-center ${formValues.wecomEnabled ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
@@ -474,7 +474,7 @@ export default function NotificationChannels() {
                 <Card
                     className={`border transition-all ${formValues.feishuEnabled ? 'border-purple-200 bg-gradient-to-br from-white to-purple-50/20' : 'border-gray-200 opacity-95'}`}>
                     <CardHeader className="border-b border-gray-100 bg-white/50">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0">
                             <div className="flex items-center space-x-3 flex-1">
                                 <div
                                     className={`w-12 h-12 rounded-lg flex items-center justify-center ${formValues.feishuEnabled ? 'bg-purple-50 text-purple-600' : 'bg-gray-100 text-gray-400'}`}>
@@ -567,7 +567,7 @@ export default function NotificationChannels() {
                 <Card
                     className={`border transition-all ${formValues.webhookEnabled ? 'border-orange-200 bg-gradient-to-br from-white to-orange-50/20' : 'border-gray-200 opacity-95'}`}>
                     <CardHeader className="border-b border-gray-100 bg-white/50">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0">
                             <div className="flex items-center space-x-3 flex-1">
                                 <div
                                     className={`w-12 h-12 rounded-lg flex items-center justify-center ${formValues.webhookEnabled ? 'bg-orange-50 text-orange-600' : 'bg-gray-100 text-gray-400'}`}>
@@ -732,7 +732,7 @@ export default function NotificationChannels() {
                 <Card
                     className={`border transition-all ${formValues.emailEnabled ? 'border-indigo-200 bg-gradient-to-br from-white to-indigo-50/20' : 'border-gray-200 opacity-95'}`}>
                     <CardHeader className="border-b border-gray-100 bg-white/50">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0">
                             <div className="flex items-center space-x-3 flex-1">
                                 <div
                                     className={`w-12 h-12 rounded-lg flex items-center justify-center ${formValues.emailEnabled ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-400'}`}>
@@ -907,7 +907,7 @@ export default function NotificationChannels() {
                 <Card
                     className={`border transition-all ${formValues.telegramlEnabled ? 'border-blue-200 bg-gradient-to-br from-white to-blue-50/20' : 'border-gray-200 opacity-95'}`}>
                     <CardHeader className="border-b border-gray-100 bg-white/50">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0">
                             <div className="flex items-center space-x-3 flex-1">
                                 <div
                                     className={`w-12 h-12 rounded-lg flex items-center justify-center ${formValues.telegramlEnabled ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>

@@ -24,6 +24,8 @@ export default function Messages() {
     const [inputText, setInputText] = useState('');
     // 搜索关键词
     const [searchQuery, setSearchQuery] = useState('');
+    // 是否为移动设备
+    const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
 
     // 根据手机号生成头像颜色
     const getAvatarColor = (phoneNumber: string) => {
@@ -123,15 +125,27 @@ export default function Messages() {
 
     // 自动选择第一个会话
     useEffect(() => {
-        if (!selectedPeer && conversations.length > 0) {
+        if (!selectedPeer && conversations.length > 0 && !isMobile) {
             setSelectedPeer(conversations[0].peer);
         }
-    }, [conversations, selectedPeer]);
+    }, [conversations, selectedPeer, isMobile]);
 
     // 自动滚动到底部
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
     }, [selectedPeer, currentMessages]);
+
+    // 检测设备类型
+    useEffect(() => {
+        const checkIsMobile = () => {
+            setIsMobile(window.innerWidth < 768); // md断点
+        };
+        // 初始化检测
+        checkIsMobile();
+        // 添加窗口大小变化监听
+        window.addEventListener('resize', checkIsMobile);
+        return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
 
     // 获取当前选中的会话信息
     const activeConversation = conversations.find(c => c.peer === selectedPeer);
@@ -304,7 +318,7 @@ export default function Messages() {
 
                 {/* 右侧：聊天区域 */}
                 <div className={`${
-                    selectedPeer ? 'flex' : 'hidden md:flex'
+                    selectedPeer ? 'flex' : 'hidden'
                 } flex-1 flex-col bg-gray-50/30`}>
                     {/* 聊天头部 */}
                     <div
